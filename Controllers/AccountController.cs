@@ -85,13 +85,12 @@ namespace Thor.Controllers
             {
                 return StatusCode((int)System.Net.HttpStatusCode.Unauthorized, "Must login first");
             }
+
+            // Creating the mirror string to return
             var request = HttpContext.Request;
 
             if (!request.Body.CanSeek)
             {
-                // We only do this if the stream isn't *already* seekable,
-                // as EnableBuffering will create a new stream instance
-                // each time it's called
                 request.EnableBuffering();
             }
 
@@ -100,8 +99,8 @@ namespace Thor.Controllers
             var body = await reader.ReadToEndAsync().ConfigureAwait(false);
             request.Body.Position = 0;
             
-            // This return handles the response you actually need - replace the body
-            // Insert your code here (before the return)
+            // This return handles the response you actually need, it return a 200 with a string
+            // Insert your code here (before the return) to edit the body variable
             return new OkObjectResult(new { message = body });
         }
 
@@ -113,10 +112,12 @@ namespace Thor.Controllers
                 return StatusCode((int)System.Net.HttpStatusCode.Unauthorized, "Must login first");
             }
 
+            // Generates a random array of bytes
             Random rnd = new Random();
             byte[] randomBytesArray = new byte[size];
             rnd.NextBytes(randomBytesArray);
 
+            // Insert you code here, you should read a file into a byte[] and replace the randomBytesArray
             return File(randomBytesArray, System.Net.Mime.MediaTypeNames.Application.Octet);
         }
     }
