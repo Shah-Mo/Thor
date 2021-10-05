@@ -1,17 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Thor.Models;
+using System.Linq;
 
 namespace Thor.Controllers
 {
@@ -19,7 +17,6 @@ namespace Thor.Controllers
     [Route("[controller]")]
     public class AccountController : Controller
     {
-        private const int MAX_SIZE = 8192;
         private string _password;
         private IConfiguration _configuration;
 
@@ -62,7 +59,7 @@ namespace Thor.Controllers
                 return new ObjectResult("Success");
             }
 
-            return StatusCode((int)System.Net.HttpStatusCode.Unauthorized, "Bad password");
+            return StatusCode((int)HttpStatusCode.Unauthorized, "Bad password");
 
         }
 
@@ -72,36 +69,22 @@ namespace Thor.Controllers
         {
             if (!User.Identity.IsAuthenticated)
             {
-                return StatusCode((int)System.Net.HttpStatusCode.Unauthorized, "Must login first");
+                return StatusCode((int)HttpStatusCode.Unauthorized, "Must login first");
             }
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return new ObjectResult("Success");
         }
 
-        [HttpGet("/get_c")]
-        public async Task<IActionResult> GetC()
+        [HttpPost("/get_c")]
+        public ActionResult GetC([FromBody] CViewModel model)
         {
             if (!User.Identity.IsAuthenticated)
             {
-                return StatusCode((int)System.Net.HttpStatusCode.Unauthorized, "Must login first");
+                return StatusCode((int)HttpStatusCode.Unauthorized, "Must login first");
             }
 
-            // Creating the mirror string to return
-            var request = HttpContext.Request;
-
-            if (!request.Body.CanSeek)
-            {
-                request.EnableBuffering();
-            }
-
-            request.Body.Position = 0;
-            var reader = new StreamReader(request.Body, Encoding.UTF8);
-            var body = await reader.ReadToEndAsync().ConfigureAwait(false);
-            request.Body.Position = 0;
-            
-            // This return handles the response you actually need, it return a 200 with a string
-            // Insert your code here (before the return) to edit the body variable
-            return new OkObjectResult(new { message = body });
+            List<string> items = GenerateGetCItemListForResponse(model);
+            return new OkObjectResult(new { items });
         }
 
         [HttpPost("/get_f")]
@@ -109,7 +92,7 @@ namespace Thor.Controllers
         {
             if (!User.Identity.IsAuthenticated)
             {
-                return StatusCode((int)System.Net.HttpStatusCode.Unauthorized, "Must login first");
+                return StatusCode((int)HttpStatusCode.Unauthorized, "Must login first");
             }
 
             // Generates a random array of bytes
@@ -119,6 +102,32 @@ namespace Thor.Controllers
 
             // Insert you code here, you should read a file into a byte[] and replace the randomBytesArray
             return File(randomBytesArray, System.Net.Mime.MediaTypeNames.Application.Octet);
+        }
+
+        private List<string> GenerateGetCItemListForResponse(CViewModel model)
+        {
+            // For generating a random string (not a byte array...)
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            Random rnd = new();
+
+            // Notice that sizeof(char) == 2
+            uint totalBytes = model.Size;
+            if (model.Type != CType.Type2) // Then we got size in bits, not bytes
+            {
+                totalBytes = model.Size / 8;
+            }
+            uint stringLength = totalBytes / sizeof(char);
+
+            // Notice that 1 <= model.NumberOfItems always (default is 1), hence even if size == 0,
+            // it will create an empty string and attach it to the list of items
+            List<string> items = new();
+            for (int i = 0; i < model.NumberOfItems; ++i)
+            {
+                items.Add(new string(Enumerable.Repeat(chars, (int)stringLength)
+                    .Select(s => s[rnd.Next(s.Length)]).ToArray()));
+            }
+
+            return items;
         }
     }
 }
