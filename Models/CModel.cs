@@ -18,7 +18,7 @@ namespace Thor.Models
         Format4
     }
 
-    public class CViewModel
+    public class CModel
     {
         const uint MaximumSize = 160000;
         const uint MaximumNumberOfItems = 10000;

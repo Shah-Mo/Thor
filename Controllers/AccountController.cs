@@ -31,7 +31,7 @@ namespace Thor.Controllers
 
         [Route("/login")]
         [HttpPost]
-        public IActionResult Login([FromBody] LoginViewModel model)
+        public IActionResult Login([FromBody] LoginModel model)
         {
             if (User.Identity.IsAuthenticated)
             {
@@ -76,7 +76,7 @@ namespace Thor.Controllers
         }
 
         [HttpPost("/get_c")]
-        public ActionResult GetC([FromBody] CViewModel model)
+        public ActionResult GetC([FromBody] CModel model)
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -104,7 +104,7 @@ namespace Thor.Controllers
             return File(randomBytesArray, System.Net.Mime.MediaTypeNames.Application.Octet);
         }
 
-        private List<string> GenerateGetCItemListForResponse(CViewModel model)
+        private List<string> GenerateGetCItemListForResponse(CModel model)
         {
             // For generating a random string (not a byte array...)
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

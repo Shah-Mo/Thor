@@ -2,7 +2,7 @@
 
 namespace Thor.Models
 {
-    public class LoginViewModel
+    public class LoginModel
     {
         [Required]
         public string Password { get; set; }
