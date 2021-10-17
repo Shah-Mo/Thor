@@ -9,6 +9,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Thor.Models;
+using Thor.Helpers;
 using System.Linq;
 
 namespace Thor.Controllers
@@ -35,7 +36,7 @@ namespace Thor.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                return new ObjectResult("Success");
+                return new ObjectResult(Constants.Messages.Success);
             }
 
             if (model.Password == _password)
@@ -56,10 +57,10 @@ namespace Thor.Controllers
                     principal,
                     props).Wait();
 
-                return new ObjectResult("Success");
+                return new ObjectResult(Constants.Messages.Success);
             }
 
-            return StatusCode((int)HttpStatusCode.Unauthorized, "Bad password");
+            return StatusCode((int)HttpStatusCode.Unauthorized, Constants.Messages.UnauthorizedPassword);
 
         }
 
@@ -69,10 +70,10 @@ namespace Thor.Controllers
         {
             if (!User.Identity.IsAuthenticated)
             {
-                return StatusCode((int)HttpStatusCode.Unauthorized, "Must login first");
+                return StatusCode((int)HttpStatusCode.Unauthorized, Constants.Messages.UnauthorizedLogin);
             }
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return new ObjectResult("Success");
+            return new ObjectResult(Constants.Messages.Success);
         }
 
         [HttpPost("/get_c")]
@@ -80,7 +81,7 @@ namespace Thor.Controllers
         {
             if (!User.Identity.IsAuthenticated)
             {
-                return StatusCode((int)HttpStatusCode.Unauthorized, "Must login first");
+                return StatusCode((int)HttpStatusCode.Unauthorized, Constants.Messages.UnauthorizedLogin);
             }
 
             List<string> items = GenerateGetCItemListForResponse(model);
@@ -92,7 +93,7 @@ namespace Thor.Controllers
         {
             if (!User.Identity.IsAuthenticated)
             {
-                return StatusCode((int)HttpStatusCode.Unauthorized, "Must login first");
+                return StatusCode((int)HttpStatusCode.Unauthorized, Constants.Messages.UnauthorizedLogin);
             }
 
             // Generates a random array of bytes

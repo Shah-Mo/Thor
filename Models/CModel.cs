@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Thor.Helpers;
 
 namespace Thor.Models
 {
@@ -24,18 +25,18 @@ namespace Thor.Models
         const uint MaximumNumberOfItems = 10000;
 
         [Required]
-        [Range(0, 2, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        [Range(0, 2, ErrorMessage = Constants.Messages.CModelError)]
         public CType Type { get; set; }
 
         [Required]
-        [Range(0, 4, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        [Range(0, 4, ErrorMessage = Constants.Messages.CModelError)]
         public int Format { get; set; }
 
         [Required]
-        [Range(0, MaximumSize, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        [Range(0, MaximumSize, ErrorMessage = Constants.Messages.CModelError)]
         public uint Size { get; set; }
 
-        [Range(1, MaximumNumberOfItems, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        [Range(1, MaximumNumberOfItems, ErrorMessage = Constants.Messages.CModelError)]
         public uint NumberOfItems { get; set; } = 1;  // default value is 1
     }
 }
